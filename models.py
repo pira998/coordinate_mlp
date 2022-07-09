@@ -24,11 +24,11 @@ class MLP(nn.Module):
         # self.net = nn.ModuleList(self.layers)
         self.net = nn.Sequential(*self.layers)
 
-        def forward(self, x):
-            """
-            x: (B, 2) # pixel uv(normalized)
-            """
-            return self.net(x) # (B, 3) rgb
+    def forward(self, x):
+        """
+        x: (B, 2) # pixel uv(normalized)
+        """
+        return self.net(x) # (B, 3) rgb
 
 
 
