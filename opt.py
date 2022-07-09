@@ -10,7 +10,7 @@ def get_opts():
     parser.add_argument('--arch', type=str, default='identity', choices=['identity'], help='Network architecture')
 
     # batch size with 4
-    parser.add_argument('--batch_size', type=int, default=256*256, help='Batch size')
+    parser.add_argument('--batch_size', type=int, default=4096, help='Batch size')
 
     # epochs with 10
     parser.add_argument('--epochs', type=int, default=2000, help='Number of epochs')

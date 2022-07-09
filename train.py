@@ -125,7 +125,8 @@ if __name__ == '__main__':
         accelerator='auto',
         devices=1,
         num_sanity_val_steps=0,
-        benchmark=True
+        benchmark=True,
+        log_every_n_steps=1
     )
 
     trainer.fit(coordMLPsystem)
