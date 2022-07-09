@@ -1,5 +1,8 @@
 import torch
 from torch.nn import functional as F
+from zmq import device
+from losses import MSELoss
+from metrics import PSNR
 
 from opt import get_opts
 
@@ -27,6 +30,8 @@ class CoordinateMLPSystem(LightningModule):
         self.hparams = hparams
         if hparams == 'identity':
             self.net = MLP()
+
+        self.loss = MSELoss()
     
     def forward(self, x):
         return self.net(x)
@@ -61,6 +66,64 @@ class CoordinateMLPSystem(LightningModule):
     
     def training_step(self, batch, batch_idx):
         rgb_pred = self(batch['uv'])
+        loss = self.loss(rgb_pred, batch['rgb'])
+        psnr_ = PSNR(rgb_pred, batch['rgb'])
+
+        self.log('train_loss', loss)
+        self.log('train_psnr', psnr_, prog_bar=True)
+        return loss
+    
+    def validation_step(self, batch, batch_idx):
+        rgb_pred = self(batch['uv'])
+        loss = self.loss(rgb_pred, batch['rgb'])
+        psnr_ = PSNR(rgb_pred, batch['rgb'])
+
+        log = {'val_loss': loss, 'val_psnr': psnr_}
+        return log
+
+    def validation_epoch_end(self, outputs):
+        avg_loss = torch.stack([x['val_loss'] for x in outputs]).mean()
+        avg_psnr = torch.stack([x['val_psnr'] for x in outputs]).mean()
+        self.log('val_loss', avg_loss, prog_bar=True)
+        self.log('val_psnr', avg_psnr, prog_bar=True)
+        return {'val_loss': avg_loss, 'val_psnr': avg_psnr}
+
+
+if __name__ == '__main__':
+    hparams = get_opts()
+    coordMLPsystem = CoordinateMLPSystem(hparams)
+
+    ckpt_cb = ModelCheckpoint(
+        save_top_k=-1,
+        dirpath=f'ckpts/{hparams.exp_name}',
+        filename='{epoch}-{val_psnr:.4f}',
+    )
+
+    pbar = TQDMProgressBar(refresh_rate=1)
+    callbacks = [ckpt_cb, pbar]
+
+    logger = TensorBoardLogger(
+        save_dir=f'logs/{hparams.exp_name}',
+        name=hparams.exp_name,
+        default_hp_metric=False
+    )
+
+    trainer = Trainer(
+        max_epochs=hparams.epochs,
+        callbacks=callbacks,
+        Logger=logger,
+        enable_model_summary=True,
+        accelerator='auto',
+        device=1,
+        num_sanity_val_steps=1,
+        benchmark=True
+    )
+
+    trainer.fit(coordMLPsystem)
+
+
+
+
 
     
         
