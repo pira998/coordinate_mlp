@@ -15,7 +15,7 @@ class MLP(nn.Module):
         self.n_output = n_output
         self.layers = [nn.Linear(self.n_input, self.n_hidden), nn.ReLU(True)]
         for i in range(self.n_layers - 1):
-            if i == self.n_layers - 2:
+            if i != self.n_layers - 2:
                 self.layers.append(nn.Linear(self.n_hidden, self.n_hidden))
                 self.layers.append(nn.ReLU(True))
             else:
