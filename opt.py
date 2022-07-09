@@ -21,6 +21,8 @@ def get_opts():
     # experiment name
     parser.add_argument('--exp_name', type=str, default='exp', help='Experiment name')
 
+    return parser.parse_args()
+
 
 
 
