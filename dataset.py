@@ -24,7 +24,8 @@ class ImageDataset(Dataset):
         self.r = 256
         image = image[c[0] - self.r:c[0] + self.r, c[1] - self.r:c[1] + self.r]
         self.uv = create_meshgrid( 2*self.r, 2*self.r, True)[0]
-        self.rgb = torch.tensor(image)
+        self.rgb = torch.FloatTensor(image)
+
         if split == 'train':
             self.rgb = self.rgb[::2, ::2]
             self.uv = self.uv[::2, ::2]

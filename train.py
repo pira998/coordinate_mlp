@@ -86,10 +86,11 @@ class CoordinateMLPSystem(LightningModule):
         avg_loss = torch.stack([x['val_loss'] for x in outputs]).mean()
         avg_psnr = torch.stack([x['val_psnr'] for x in outputs]).mean()
         rgb_pred = torch.cat([x['rgb_pred'] for x in outputs])
-        rgb_pred = rearrange(rgb_pred, '(h w) c -> c h w')
-
+        rgb_pred = rearrange(rgb_pred, '(h w) c -> c h w',
+                             h = 2 * self.train_dataset.r,
+                                w = 2 * self.train_dataset.r)
         self.logger.experiment.add_image('val/rgb_pred', rgb_pred, self.global_step)
-        
+
 
         self.log('val_loss', avg_loss, prog_bar=True)
         self.log('val_psnr', avg_psnr, prog_bar=True)
@@ -122,7 +123,7 @@ if __name__ == '__main__':
         enable_model_summary=True,
         accelerator='auto',
         device=1,
-        num_sanity_val_steps=1,
+        num_sanity_val_steps=0,
         benchmark=True
     )
 
