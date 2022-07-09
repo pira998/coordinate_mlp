@@ -30,7 +30,7 @@ class CoordinateMLPSystem(LightningModule):
         super().__init__()
         self.save_hyperparameters(hparams)
         self.hparams_ = hparams
-        if hparams == 'identity':
+        if hparams.arch == 'identity':
             self.net = MLP()
 
         self.loss = MSELoss()
@@ -120,10 +120,10 @@ if __name__ == '__main__':
     trainer = Trainer(
         max_epochs=hparams.epochs,
         callbacks=callbacks,
-        Logger=logger,
+        logger=logger,
         enable_model_summary=True,
         accelerator='auto',
-        device=1,
+        devices=1,
         num_sanity_val_steps=0,
         benchmark=True
     )
