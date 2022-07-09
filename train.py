@@ -1,3 +1,4 @@
+from einops import rearrange
 import torch
 from torch.nn import functional as F
 from zmq import device
@@ -78,12 +79,18 @@ class CoordinateMLPSystem(LightningModule):
         loss = self.loss(rgb_pred, batch['rgb'])
         psnr_ = PSNR(rgb_pred, batch['rgb'])
 
-        log = {'val_loss': loss, 'val_psnr': psnr_}
+        log = {'val_loss': loss, 'val_psnr': psnr_, 'rgb_pred': rgb_pred, 'rgb': batch['rgb']}
         return log
 
     def validation_epoch_end(self, outputs):
         avg_loss = torch.stack([x['val_loss'] for x in outputs]).mean()
         avg_psnr = torch.stack([x['val_psnr'] for x in outputs]).mean()
+        rgb_pred = torch.cat([x['rgb_pred'] for x in outputs])
+        rgb_pred = rearrange(rgb_pred, '(h w) c -> c h w')
+
+        self.logger.experiment.add_image('val/rgb_pred', rgb_pred, self.global_step)
+        
+
         self.log('val_loss', avg_loss, prog_bar=True)
         self.log('val_psnr', avg_psnr, prog_bar=True)
         return {'val_loss': avg_loss, 'val_psnr': avg_psnr}
