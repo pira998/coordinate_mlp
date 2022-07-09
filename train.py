@@ -28,7 +28,8 @@ seed_everything(42, workers = True)
 class CoordinateMLPSystem(LightningModule):
     def __init__(self, hparams):
         super().__init__()
-        self.hparams = hparams
+        self.save_hyperparameters(hparams)
+        self.hparams_ = hparams
         if hparams == 'identity':
             self.net = MLP()
 
@@ -38,14 +39,14 @@ class CoordinateMLPSystem(LightningModule):
         return self.net(x)
 
     def setup(self, stage=None):
-        hparams = self.hparams
+        hparams = self.hparams_
         self.train_dataset = ImageDataset(hparams.image_path, 'train')
         self.val_dataset = ImageDataset(hparams.image_path, 'val')
 
     def train_dataloader(self):
         return DataLoader(
             self.train_dataset,
-            batch_size=self.hparams.batch_size,
+            batch_size=self.hparams_.batch_size,
             shuffle=True,
             num_workers=4,
             pin_memory=True
@@ -54,14 +55,14 @@ class CoordinateMLPSystem(LightningModule):
     def val_dataloader(self):
         return DataLoader(
             self.val_dataset,
-            batch_size=self.hparams.batch_size,
+            batch_size=self.hparams_.batch_size,
             shuffle=False,
             num_workers=4,
             pin_memory=True
         )
     
     def configure_optimizers(self):
-        self.optimizer = Adam(self.net.parameters(), lr=self.hparams.lr)
+        self.optimizer = Adam(self.net.parameters(), lr=self.hparams_.lr)
 
         return self.optimizer
     
