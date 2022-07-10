@@ -40,7 +40,7 @@ class CoordinateMLPSystem(LightningModule):
             self.net = MLP(n_input=self.pe.out_dim)
         
         elif hparams.arch == 'gau':
-            P = torch.normal(torch.zeros(2,256), torch.ones(2,256))
+            P = hparams.sc * torch.normal(torch.zeros(2,256), torch.ones(2,256))
             self.pe = PE(P)
             self.net = MLP(n_input=self.pe.out_dim)
 
