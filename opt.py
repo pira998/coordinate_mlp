@@ -7,7 +7,7 @@ def get_opts():
     parser.add_argument('--image_path', type=str, required=True, help='Path to image')
 
     # network structure with choices identity, mlp, pe
-    parser.add_argument('--arch', type=str, default='identity', choices=['identity','pe','ff', 'siren'], help='Network architecture')
+    parser.add_argument('--arch', type=str, default='identity', choices=['identity','pe','ff', 'siren', 'gau'], help='Network architecture')
 
     # gaussian activation 
     parser.add_argument('--s', type=float, default=1., help='Gaussian sigma')
