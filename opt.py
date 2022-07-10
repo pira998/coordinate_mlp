@@ -7,13 +7,13 @@ def get_opts():
     parser.add_argument('--image_path', type=str, required=True, help='Path to image')
 
     # network structure with choices identity, mlp, pe
-    parser.add_argument('--arch', type=str, default='identity', choices=['identity','pe','gau'], help='Network architecture')
+    parser.add_argument('--arch', type=str, default='identity', choices=['identity','pe','ff', 'siren'], help='Network architecture')
 
     # gaussian embedding scale factor
     parser.add_argument('--sc', type=float, default=10., help='Gaussian embedding scale factor')
 
     # batch size with 4
-    parser.add_argument('--batch_size', type=int, default=256 * 256, help='Batch size')
+    parser.add_argument('--batch_size', type=int, default=1024, help='Batch size')
 
     # epochs with 10
     parser.add_argument('--epochs', type=int, default=2000, help='Number of epochs')

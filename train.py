@@ -39,7 +39,8 @@ class CoordinateMLPSystem(LightningModule):
             self.pe = PE(P)
             self.net = MLP(n_input=self.pe.out_dim)
         
-        elif hparams.arch == 'gau':
+        elif hparams.arch == 'ff': # fourier features
+            ## hparams.sc should be 2 * np.pi * hparams.sc
             P = hparams.sc * torch.normal(torch.zeros(2,256), torch.ones(2,256))
             self.pe = PE(P)
             self.net = MLP(n_input=self.pe.out_dim)
@@ -100,11 +101,11 @@ class CoordinateMLPSystem(LightningModule):
     def validation_epoch_end(self, outputs):
         avg_loss = torch.stack([x['val_loss'] for x in outputs]).mean()
         avg_psnr = torch.stack([x['val_psnr'] for x in outputs]).mean()
-        rgb_pred = torch.cat([x['rgb_pred'] for x in outputs])
+        rgb_pred = torch.cat([x['rgb_pred'] for x in outputs]) 
         rgb_pred = rearrange(rgb_pred, '(h w) c -> c h w',
-                             h = 2 * self.train_dataset.r,
-                                w = 2 * self.train_dataset.r)
-        self.logger.experiment.add_image('val/rgb_pred', rgb_pred, self.global_step)
+                             h =  self.train_dataset.r,
+                                w =  self.train_dataset.r) # (3, H, W)
+        self.logger.experiment.add_image('val/rgb_pred', rgb_pred, self.global_step) # (3, H, W)
 
 
         self.log('val_loss', avg_loss, prog_bar=True)

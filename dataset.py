@@ -1,3 +1,4 @@
+import cv2
 import torch
 from torch.utils.data import Dataset
 import numpy as np
@@ -22,13 +23,15 @@ class ImageDataset(Dataset):
         image = imageio.imread(image_path)[...,:3] / 255
         c = [image.shape[0]//2 , image.shape[1]//2]
         self.r = 256
-        image = image[c[0] - self.r:c[0] + self.r, c[1] - self.r:c[1] + self.r]
-        self.uv = create_meshgrid( 2*self.r, 2*self.r, True)[0]
-        self.rgb = torch.FloatTensor(image)
+        image = image[c[0] - self.r:c[0] + self.r, c[1] - self.r:c[1] + self.r] # crop
+        image = cv2.resize(image, (256, 256)) # (256, 256)
+
+        self.uv = create_meshgrid( self.r, self.r, True)[0] 
+        self.rgb = torch.FloatTensor(image) # (256, 256, 3)
 
         if split == 'train':
-            self.rgb = self.rgb[::2, ::2]
-            self.uv = self.uv[::2, ::2]
+            self.rgb = self.rgb[::2, ::2] # (128, 128, 3)
+            self.uv = self.uv[::2, ::2] # (128, 128, 2)
 
         self.uv = rearrange(self.uv, 'h w c -> (h w) c')
         self.rgb = rearrange(self.rgb, 'h w c -> (h w) c')
