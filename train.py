@@ -36,7 +36,7 @@ class CoordinateMLPSystem(LightningModule):
         
         elif hparams.arch == 'pe':
             P = torch.cat([torch.eye(2) * 2 ** i for i in range(10)]) # 10x2x2
-            self.pe = PE(PE)
+            self.pe = PE(P)
             self.net = MLP(n_input=self.pe.out_dim)
 
         self.loss = MSELoss()
