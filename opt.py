@@ -7,7 +7,7 @@ def get_opts():
     parser.add_argument('--image_path', type=str, required=True, help='Path to image')
 
     # network structure with choices identity, mlp, pe
-    parser.add_argument('--arch', type=str, default='identity', choices=['identity'], help='Network architecture')
+    parser.add_argument('--arch', type=str, default='identity', choices=['identity','pe'], help='Network architecture')
 
     # batch size with 4
     parser.add_argument('--batch_size', type=int, default=4096, help='Batch size')
