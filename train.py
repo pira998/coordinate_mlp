@@ -38,13 +38,18 @@ class CoordinateMLPSystem(LightningModule):
             P = torch.cat([torch.eye(2) * 2 ** i for i in range(10)], dim= 1) # 10x2x2
             self.pe = PE(P)
             self.net = MLP(n_input=self.pe.out_dim)
+        
+        elif hparams.arch == 'gau':
+            P = torch.normal(torch.zeros(2,256), torch.ones(2,256))
+            self.pe = PE(P)
+            self.net = MLP(n_input=self.pe.out_dim)
 
         self.loss = MSELoss()
     
     def forward(self, x):
         if hparams.arch == 'identity':
             return self.net(x)
-        elif hparams.arch == 'pe':
+        else:
             return self.net(self.pe(x))
 
     def setup(self, stage=None):
