@@ -12,6 +12,9 @@ def get_opts():
     # gaussian embedding scale factor
     parser.add_argument('--sc', type=float, default=10., help='Gaussian embedding scale factor')
 
+    # omega for siren
+    parser.add_argument('--omega', type=float, default=30., help='Omega for siren')
+
     # batch size with 4
     parser.add_argument('--batch_size', type=int, default=1024, help='Batch size')
 

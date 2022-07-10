@@ -12,7 +12,7 @@ from torch.utils.data import DataLoader
 from dataset import ImageDataset
 
 #models
-from models import MLP, PE
+from models import MLP, PE, Siren
 
 #optimizer
 from torch.optim import Adam
@@ -45,10 +45,17 @@ class CoordinateMLPSystem(LightningModule):
             self.pe = PE(P)
             self.net = MLP(n_input=self.pe.out_dim)
 
+        elif hparams.arch == 'siren':
+            self.net = Siren( hidden_omega_0= hparams.omega,
+                             first_omega_0= hparams.omega, 
+             )
+
         self.loss = MSELoss()
     
     def forward(self, x):
         if hparams.arch == 'identity':
+            return self.net(x)
+        elif hparams.arch == 'siren':
             return self.net(x)
         else:
             return self.net(self.pe(x))
