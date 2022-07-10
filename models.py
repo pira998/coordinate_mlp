@@ -8,17 +8,24 @@ class MLP(nn.Module):
     '''
     MLP with 4 hidden layers
     '''
-    def __init__(self, n_layers=4, n_hidden=256, n_input=2, n_output=3):
+    def __init__(self, n_layers=4, n_hidden=256, n_input=2, n_output=3, act='relu', **kwargs):
         super(MLP, self).__init__()
         self.n_layers = n_layers
         self.n_hidden = n_hidden
         self.n_input = n_input
         self.n_output = n_output
-        self.layers = [nn.Linear(self.n_input, self.n_hidden), nn.ReLU(True)]
+
+        if act == 'relu':
+            act = nn.ReLU()
+        elif act == 'gaussian':
+            act = GaussianActivation(s=kwargs['s'])
+
+
+        self.layers = [nn.Linear(self.n_input, self.n_hidden), act]
         for i in range(self.n_layers - 1):
             if i != self.n_layers - 2:
                 self.layers.append(nn.Linear(self.n_hidden, self.n_hidden))
-                self.layers.append(nn.ReLU(True))
+                self.layers.append(act)
             else:
                 self.layers.append(nn.Linear(self.n_hidden, self.n_output))
                 self.layers.append(nn.Sigmoid())
@@ -121,3 +128,10 @@ class SineLayer(nn.Module):
     def forward(self, x):
         return torch.sin(self.omega_0 * self.linear(x))
     
+class GaussianActivation(nn.Module):
+    def __init__(self, s = 1.):
+        super().__init__()
+        self.s = s
+    
+    def forward(self, x):
+        return torch.exp(-x**2 / 2*self.s**2)
