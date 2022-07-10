@@ -38,7 +38,7 @@ class CoordinateMLPSystem(LightningModule):
             elif hparams.arch == 'gau':
                 act = 'gaussian'
                 kwargs['s'] = hparams.s
-            self.net = MLP(act, **kwargs)
+            self.net = MLP(act = act, **kwargs)
         
         elif hparams.arch == 'pe':
             P = torch.cat([torch.eye(2) * 2 ** i for i in range(10)], dim= 1) # 10x2x2
@@ -59,9 +59,7 @@ class CoordinateMLPSystem(LightningModule):
         self.loss = MSELoss()
     
     def forward(self, x):
-        if hparams.arch == 'identity':
-            return self.net(x)
-        elif hparams.arch == 'siren':
+        if hparams.arch in ['identity','gau','siren']:
             return self.net(x)
         else:
             return self.net(self.pe(x))
