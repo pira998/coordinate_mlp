@@ -31,8 +31,14 @@ class CoordinateMLPSystem(LightningModule):
         self.save_hyperparameters(hparams)
         self.hparams_ = hparams
 
-        if hparams.arch == 'identity':
-            self.net = MLP()
+        if hparams.arch in ['identity', 'gau']:
+            kwargs = {}
+            if hparams.arch == 'identity':
+                act = 'relu'
+            elif hparams.arch == 'gau':
+                act = 'gaussian'
+                kwargs['s'] = hparams.s
+            self.net = MLP(act, **kwargs)
         
         elif hparams.arch == 'pe':
             P = torch.cat([torch.eye(2) * 2 ** i for i in range(10)], dim= 1) # 10x2x2

@@ -9,6 +9,9 @@ def get_opts():
     # network structure with choices identity, mlp, pe
     parser.add_argument('--arch', type=str, default='identity', choices=['identity','pe','ff', 'siren'], help='Network architecture')
 
+    # gaussian activation 
+    parser.add_argument('--s', type=float, default=1., help='Gaussian sigma')
+
     # gaussian embedding scale factor
     parser.add_argument('--sc', type=float, default=10., help='Gaussian embedding scale factor')
 
