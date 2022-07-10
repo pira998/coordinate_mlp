@@ -12,7 +12,7 @@ from torch.utils.data import DataLoader
 from dataset import ImageDataset
 
 #models
-from models import MLP
+from models import MLP, PE
 
 #optimizer
 from torch.optim import Adam
@@ -30,13 +30,22 @@ class CoordinateMLPSystem(LightningModule):
         super().__init__()
         self.save_hyperparameters(hparams)
         self.hparams_ = hparams
+
         if hparams.arch == 'identity':
             self.net = MLP()
+        
+        elif hparams.arch == 'pe':
+            P = torch.cat([torch.eye(2) * 2 ** i for i in range(10)], dim= 1) # 10x2x2
+            self.pe = PE(P)
+            self.net = MLP(n_input=self.pe.out_dim)
 
         self.loss = MSELoss()
     
     def forward(self, x):
-        return self.net(x)
+        if hparams.arch == 'identity':
+            return self.net(x)
+        elif hparams.arch == 'pe':
+            return self.net(self.pe(x))
 
     def setup(self, stage=None):
         hparams = self.hparams_
@@ -126,7 +135,8 @@ if __name__ == '__main__':
         devices=1,
         num_sanity_val_steps=0,
         benchmark=True,
-        log_every_n_steps=1
+        log_every_n_steps=1,
+        check_val_every_n_epoch=20,
     )
 
     trainer.fit(coordMLPsystem)
